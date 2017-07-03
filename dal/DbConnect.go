@@ -1,4 +1,4 @@
-package main
+package dal
 
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
@@ -9,12 +9,17 @@ type DbConnect struct {
     conn *sql.DB
 }
 
-func (d *DbConnect) connect() *sql.DB {
-    d.conn, _ = sql.Open("mysql", "master:mastersecret@(11.11.11.11:3306)/busca")
+func (d *DbConnect) Connect(connectionString string) *sql.DB {
+    conn, err := sql.Open("mysql", connectionString)
+    d.conn = conn
+
+    if err != nil {
+        log.Fatal(err.Error())
+    }
     return d.conn
 }
 
-func (d DbConnect) isConnected() bool {
+func (d DbConnect) IsConnected() bool {
     if(d.conn == nil) {
         log.Fatal("Not Connected!")
     }
@@ -26,7 +31,13 @@ func (d DbConnect) isConnected() bool {
     return true
 }
 
-func (d DbConnect) getResult(rows *sql.Rows) []map[string]string {
+func (d DbConnect) GetResultOf(query string) []map[string]string {
+    rows, err := d.conn.Query(query)
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
     columns, _ := rows.Columns()
     IColumns := make([]interface{}, len(columns))
     IValues := make([]interface{}, len(columns))
