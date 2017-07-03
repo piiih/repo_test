@@ -3,6 +3,7 @@ package dal
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
 import "log"
+import c "github.com/piiih/repo_test/conversions"
 
 
 type DbConnect struct {
@@ -55,14 +56,10 @@ func (d DbConnect) GetResultOf(query string) []map[string]string {
         m := make(map[string]string)
 
         for i, col := range columns {
-            m[col] = convertToHuman(IValues[i])
+            m[col] = c.HexToString(IValues[i])
         }
         result = append(result, m)
     }
-    return result
-}
 
-func convertToHuman(data interface{}) string {
-    val, _ := data.([]byte)
-    return string(val)
+    return result
 }
